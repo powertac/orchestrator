@@ -1,4 +1,4 @@
-package org.powertac.orchestrator.analysis;
+package org.powertac.orchestrator.analysis.dtos;
 
 import lombok.Builder;
 import lombok.Getter;

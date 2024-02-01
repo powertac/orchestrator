@@ -1,7 +1,8 @@
-package org.powertac.orchestrator.analysis;
+package org.powertac.orchestrator.analysis.dtos;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.powertac.orchestrator.analysis.AnalyzerGameGroupType;
 
 import java.util.Set;
 
