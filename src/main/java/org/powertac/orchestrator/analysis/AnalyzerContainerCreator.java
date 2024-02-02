@@ -24,7 +24,7 @@ public class AnalyzerContainerCreator implements ContainerCreator<AnalyzerTask> 
     private final static String containerDataPath = containerRootPath + "/data";
     private final static String containerArtifactsPath = containerRootPath + "/artifacts";
 
-    @Value("${analysis.container.defaultImage}")
+    @Value("${services.analysis.default-image}")
     private String defaultImageTag;
 
     private final DockerClient docker;

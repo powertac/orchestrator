@@ -30,7 +30,7 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig  {
 
-    @Value("#{'${application.api.allowed-origins}'.split(',')}")
+    @Value("#{'${security.api.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
     @Bean

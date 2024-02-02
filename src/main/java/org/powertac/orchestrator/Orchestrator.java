@@ -21,6 +21,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,13 +33,13 @@ import java.util.concurrent.TimeUnit;
 @SpringBootApplication
 public class Orchestrator implements ApplicationRunner, ApplicationContextAware {
 
-    @Value("${server.defaultImage}")
-    private String defaultServerImage;
+    @Value("${services.simulationserver.default-image}")
+    private String defaultSimulationServerImage;
 
     private ApplicationContext context;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
     }
 
@@ -106,8 +107,8 @@ public class Orchestrator implements ApplicationRunner, ApplicationContextAware 
 
     private void pullRequiredDockerImages() throws DockerException {
         DockerImageRepository images = context.getBean(DockerImageRepository.class);
-        if (!images.exists(defaultServerImage)) {
-            images.pull(defaultServerImage);
+        if (!images.exists(defaultSimulationServerImage)) {
+            images.pull(defaultSimulationServerImage);
         }
     }
 

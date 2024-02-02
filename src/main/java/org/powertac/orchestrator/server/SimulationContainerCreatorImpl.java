@@ -30,7 +30,7 @@ public class SimulationContainerCreatorImpl implements SimulationContainerCreato
     private final static String serverAlias = "powertac-server";
     private final static int defaultMessageBrokerPort = 61616;
 
-    @Value("${server.defaultImage}")
+    @Value("${services.simulationserver.default-image}")
     private String defaultImageTag;
 
     private final DockerClient docker;

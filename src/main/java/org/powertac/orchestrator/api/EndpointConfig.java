@@ -16,7 +16,7 @@ import java.util.List;
 @EnableWebSocketMessageBroker
 public class EndpointConfig  implements WebSocketMessageBrokerConfigurer {
 
-    @Value("#{'${application.api.allowed-origins}'.split(',')}")
+    @Value("#{'${security.api.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
     @Override
