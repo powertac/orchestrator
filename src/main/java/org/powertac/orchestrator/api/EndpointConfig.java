@@ -34,6 +34,7 @@ public class EndpointConfig  implements WebSocketMessageBrokerConfigurer {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
+        // FIXME - this might be in conflict with SecurityConfig
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
