@@ -22,7 +22,7 @@ public class LogProcessorContainerCreator implements ContainerCreator<LogProcess
     private final static String containerRootPath = "/opt/powertac/log-processor";
     private final static String containerResultsPath = containerRootPath + "/results";
 
-    @Value("${logprocessor.container.defaultImage}")
+    @Value("${services.logprocessor.default-image}")
     private String defaultImageTag;
 
     private final DockerClient docker;

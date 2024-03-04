@@ -16,7 +16,7 @@ import java.util.List;
 @EnableWebSocketMessageBroker
 public class EndpointConfig  implements WebSocketMessageBrokerConfigurer {
 
-    @Value("#{'${application.api.allowed-origins}'.split(',')}")
+    @Value("#{'${security.api.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
     @Override
@@ -34,6 +34,7 @@ public class EndpointConfig  implements WebSocketMessageBrokerConfigurer {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
+        // FIXME - this might be in conflict with SecurityConfig
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {

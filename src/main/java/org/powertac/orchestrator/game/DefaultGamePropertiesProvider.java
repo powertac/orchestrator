@@ -12,7 +12,7 @@ import java.util.Properties;
 @Component
 public class DefaultGamePropertiesProvider implements GamePropertiesProvider {
 
-    @Value("${application.weatherserver.url}")
+    @Value("${services.weatherserver.url}")
     private String defaultWeatherServerUrl;
 
     private final DateTimeFormatter baseTimeFormatter;

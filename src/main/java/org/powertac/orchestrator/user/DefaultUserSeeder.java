@@ -19,7 +19,7 @@ public class DefaultUserSeeder implements Seeder {
 
     private final static String adminAccountName = "admin";
 
-    @Value("${security.default.admin-password}")
+    @Value("${security.default-admin-password}")
     private String defaultAdminPassword;
 
     private final UserRepository users;

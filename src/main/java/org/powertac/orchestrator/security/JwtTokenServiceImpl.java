@@ -124,11 +124,14 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
     private void verifyExpirationDateClaim(DecodedJWT jwt, Instant expirationDate) throws ClaimMismatchException {
         Instant claimedExpirationDate = Instant.ofEpochSecond(jwt.getClaim("expiration").asLong());
-        if (!claimedExpirationDate.equals(expirationDate)) {
+        // "cast" saved expiration date to resolution of seconds to avoid inconsistencies (persistence layer(s)
+        // might or might not save milli-/nanoseconds)
+        Instant expirationDateWithoutNanos = Instant.ofEpochSecond(expirationDate.getEpochSecond());
+        if (!claimedExpirationDate.equals(expirationDateWithoutNanos)) {
             throw new ClaimMismatchException(
                 String.format("claimed expiration date '%s' does not match token holder's expiration date '%s'",
                     claimedExpirationDate,
-                    expirationDate));
+                    expirationDateWithoutNanos));
         }
     }
 

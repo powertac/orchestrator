@@ -30,7 +30,7 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig  {
 
-    @Value("#{'${application.api.allowed-origins}'.split(',')}")
+    @Value("#{'${security.api.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
     @Bean
@@ -69,7 +69,7 @@ public class SecurityConfig  {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "DELETE"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

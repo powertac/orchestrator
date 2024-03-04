@@ -19,7 +19,7 @@ import java.util.List;
 @Component
 public class BootstrapContainerCreatorImpl implements BootstrapContainerCreator {
 
-    @Value("${server.defaultImage}")
+    @Value("${services.simulationserver.default-image}")
     private String defaultImageTag;
 
     private final DockerClient docker;

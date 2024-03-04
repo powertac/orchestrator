@@ -29,8 +29,8 @@ public class ContainerGameRunner implements GameRunner {
     @Value("${application.deployment.context}")
     private DeploymentContext deploymentContext;
 
-    @Value("${services.weatherserver.containerId}")
-    private String weatherServerContainerId;
+    @Value("${services.weatherserver.default-container-name}")
+    private String weatherServerContainerName;
 
     private final GameRunRepository runs;
     private final GameFileManager gameFileManager;
@@ -174,14 +174,14 @@ public class ContainerGameRunner implements GameRunner {
 
     private void connectWeatherServer(String networkNameOrId) throws DockerException {
         client.connectToNetworkCmd()
-            .withContainerId(weatherServerContainerId)
+            .withContainerId(weatherServerContainerName)
             .withNetworkId(networkNameOrId)
             .exec();
     }
 
     private void disconnectWeatherServer(String networkNameOrId) throws DockerException {
         client.disconnectFromNetworkCmd()
-            .withContainerId(weatherServerContainerId)
+            .withContainerId(weatherServerContainerName)
             .withNetworkId(networkNameOrId)
             .exec();
     }
