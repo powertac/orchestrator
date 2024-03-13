@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.powertac.orchestrator.analysis.scope.GameGroup;
 import org.powertac.orchestrator.baseline.Baseline;
 import org.powertac.orchestrator.game.Game;
 
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Treatment {
+public class Treatment extends GameGroup {
 
     @Id
     @Getter

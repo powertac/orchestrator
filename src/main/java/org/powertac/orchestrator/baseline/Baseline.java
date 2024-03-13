@@ -1,6 +1,7 @@
 package org.powertac.orchestrator.baseline;
 
 import lombok.*;
+import org.powertac.orchestrator.analysis.scope.GameGroup;
 import org.powertac.orchestrator.broker.BrokerSet;
 import org.powertac.orchestrator.game.Game;
 import org.powertac.orchestrator.game.generator.GameGeneratorConfig;
@@ -15,7 +16,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Baseline {
+public class Baseline extends GameGroup {
 
     @Id
     @Getter

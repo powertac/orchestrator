@@ -27,7 +27,7 @@ public class DockerContainerConverter implements AttributeConverter<DockerContai
     @Nullable
     public DockerContainer convertToEntityAttribute(String id) {
         try {
-            return containerRepository.find(id).orElse(null);
+            return containerRepository.findById(id).orElse(null);
         } catch (DockerException e) {
             LogManager.getLogger(DockerContainerConverter.class).warn("could not find container for id=" + id);
             return null;

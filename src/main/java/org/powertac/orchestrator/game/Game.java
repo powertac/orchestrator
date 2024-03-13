@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
+import org.powertac.orchestrator.analysis.scope.Scope;
 import org.powertac.orchestrator.baseline.Baseline;
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.broker.BrokerSet;
@@ -21,7 +22,7 @@ import java.util.*;
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property="id")
 @Builder
-public class Game {
+public class Game implements Scope {
 
     enum ExecutionStatus {
         NONE,
@@ -223,6 +224,12 @@ public class Game {
         return !isRunning()
             && runs.size() > 2
             && null == getLatestSuccessfulRun();
+    }
+
+    @Override
+    @Transient
+    public Collection<Game> getGames() {
+        return Set.of(this);
     }
 
     public GameConfigDTO getConfigDto() {
