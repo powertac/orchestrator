@@ -65,6 +65,11 @@ public class OrchestratorGamePathProvider implements PathProvider.OrchestratorPa
     }
 
     @Override
+    public Path scope() {
+        return Paths.get(dir().toString(), String.format("%s.scope.json", game.getId()));
+    }
+
+    @Override
     public BrokerPaths broker(Broker broker) {
         // since the BrokerPaths interface has only one method at this time, it may be used as a function interface
         return () -> Paths.get(

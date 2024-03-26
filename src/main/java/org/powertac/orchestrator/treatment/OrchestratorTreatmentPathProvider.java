@@ -25,4 +25,9 @@ public class OrchestratorTreatmentPathProvider implements PathProvider.Orchestra
         return Paths.get(dir().toString(), "artifacts");
     }
 
+    @Override
+    public Path scope() {
+        return Paths.get(dir().toString(), String.format("%s.scope.json", treatment.getId()));
+    }
+
 }

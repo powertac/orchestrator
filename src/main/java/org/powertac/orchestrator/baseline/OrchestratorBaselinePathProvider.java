@@ -30,4 +30,9 @@ public class OrchestratorBaselinePathProvider implements PathProvider.Orchestrat
         return Paths.get(dir().toString(), String.format("%s.games.csv", baseline.getId()));
     }
 
+    @Override
+    public Path scope() {
+        return Paths.get(dir().toString(), String.format("%s.scope.json", baseline.getId()));
+    }
+
 }

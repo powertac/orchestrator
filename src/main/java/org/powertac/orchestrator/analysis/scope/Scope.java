@@ -7,6 +7,8 @@ import java.util.Collection;
 public interface Scope {
 
     String getId();
+    String getName();
     Collection<Game> getGames();
+    ScopeType getScopeType();
 
 }

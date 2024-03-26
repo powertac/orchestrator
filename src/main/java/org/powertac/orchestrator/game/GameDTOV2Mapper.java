@@ -1,5 +1,7 @@
 package org.powertac.orchestrator.game;
 
+import org.powertac.orchestrator.broker.Broker;
+import org.powertac.orchestrator.broker.BrokerDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -30,10 +32,15 @@ public class GameDTOV2Mapper implements GameDTOMapper {
     private GameConfigDTO parseConfigDTO(Game game) {
         return GameConfigDTO.builder()
             .brokerIds(game.getBrokerSet().getIds())
+            .brokers(game.getBrokers().stream().map(this::brokerToDto).collect(Collectors.toSet()))
             .parameters(game.getServerParameters())
             .weather(game.getWeatherConfiguration())
-            .seed(null)
+            .seed(null) // FIXME : this should contain reference to game, if applicable
             .build();
+    }
+
+    private BrokerDTO brokerToDto(Broker broker) {
+        return new BrokerDTO(broker.getId(), broker.getName(), broker.getVersion());
     }
 
     private GameRunDTO parseGameRunDTO(GameRun run) {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
 import org.powertac.orchestrator.analysis.scope.Scope;
+import org.powertac.orchestrator.analysis.scope.ScopeType;
 import org.powertac.orchestrator.baseline.Baseline;
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.broker.BrokerSet;
@@ -232,6 +233,12 @@ public class Game implements Scope {
         return Set.of(this);
     }
 
+    @Override
+    public ScopeType getScopeType() {
+        return ScopeType.GAME;
+    }
+
+    @Deprecated // see GameDTOV2Mapper::parseConfigDTO
     public GameConfigDTO getConfigDto() {
         return GameConfigDTO.builder()
             .brokerIds(brokerSet.getIds())

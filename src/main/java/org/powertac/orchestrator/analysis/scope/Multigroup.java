@@ -15,15 +15,23 @@ public class Multigroup implements Scope {
     private String id;
 
     @Getter
-    private final Collection<GameGroup> groups;
+    private String name;
+
+    @Getter
+    private final Collection<Group> groups;
 
     @Override
     public Collection<Game> getGames() {
         final Set<Game> games = new HashSet<>();
         getGroups().stream()
-            .map(GameGroup::getGames)
+            .map(Group::getGames)
             .forEach(games::addAll);
         return games;
+    }
+
+    @Override
+    public ScopeType getScopeType() {
+        return ScopeType.MULTIGROUP;
     }
 
 }

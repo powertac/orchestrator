@@ -1,14 +1,9 @@
 package org.powertac.orchestrator.jupyter;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.*;
 import org.powertac.orchestrator.docker.ContainerCreator;
 import org.powertac.orchestrator.docker.DockerContainer;
-import org.powertac.orchestrator.docker.DockerContainerRepository;
-import org.powertac.orchestrator.paths.PathProvider;
 import org.powertac.orchestrator.user.UserProvider;
 import org.powertac.orchestrator.user.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +20,12 @@ public class JupyterContainerCreator implements ContainerCreator<JupyterInstance
 
     private final DockerClient docker;
     private final UserProvider userProvider;
-    private final JupyterBindFactory binds;
+    private final JupyterBindFactory bindFactory;
 
-    public JupyterContainerCreator(DockerClient docker, UserProvider userProvider, JupyterBindFactory binds) {
+    public JupyterContainerCreator(DockerClient docker, UserProvider userProvider, JupyterBindFactory bindFactory) {
         this.docker = docker;
         this.userProvider = userProvider;
-        this.binds = binds;
+        this.bindFactory = bindFactory;
     }
 
     @Override
@@ -58,11 +53,18 @@ public class JupyterContainerCreator implements ContainerCreator<JupyterInstance
 
     private HostConfig getHostConfig(JupyterInstance instance) {
         return new HostConfig()
-            .withBinds(binds.createGameArtifactsBinds(instance.getScope().getGames()))
+            .withBinds(getBinds(instance))
             .withPortBindings(
                 new PortBinding(
                     new Ports.Binding("127.0.0.1", instance.getPort().toString()),
                     new ExposedPort(8888)));
+    }
+
+    private List<Bind> getBinds(JupyterInstance instance) {
+        List<Bind> binds = new ArrayList<>();
+        binds.add(bindFactory.createScopeFileBind(instance.getScope()));
+        binds.addAll(bindFactory.createGameArtifactsBinds(instance.getScope().getGames()));
+        return binds;
     }
 
     private List<String> getCommand(JupyterInstance instance) {

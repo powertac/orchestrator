@@ -37,6 +37,7 @@ public interface PathProvider extends Versioned {
             Path seed();
             Path archive();
             Path artifacts();
+            Path scope();
             BrokerPaths broker(Broker broker);
 
             interface BrokerPaths {
@@ -61,11 +62,13 @@ public interface PathProvider extends Versioned {
             Path dir();
             Path artifacts();
             Path manifest();
+            Path scope();
         }
 
         interface TreatmentPaths {
             Path dir();
             Path artifacts();
+            Path scope();
         }
     }
 
