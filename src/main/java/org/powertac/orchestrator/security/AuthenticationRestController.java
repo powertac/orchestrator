@@ -39,11 +39,16 @@ public class AuthenticationRestController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<Boolean> isAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Boolean isAuthenticated = authentication.isAuthenticated()
-            && !(authentication instanceof AnonymousAuthenticationToken);
-        return ResponseEntity.ok().body(isAuthenticated);
+    public ResponseEntity<AuthenticationStateDTO> isAuthenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Boolean isAuthenticated = authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+            return ResponseEntity.ok().body(new AuthenticationStateDTO(isAuthenticated));
+        } catch (Exception e) {
+            logger.error("unable to determine authentication state", e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/")
