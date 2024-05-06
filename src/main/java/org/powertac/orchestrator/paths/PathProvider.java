@@ -21,6 +21,8 @@ public interface PathProvider extends Versioned {
     ContainerPaths container();
 
     interface OrchestratorPaths {
+        Path config();
+        Path processorsFile(String logProcessorImageId);
         Path games();
         Path baselines();
         Path treatments();

@@ -1,6 +1,7 @@
 package org.powertac.orchestrator.docker;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Image;
@@ -50,6 +51,12 @@ public class ApiDrivenDockerImageRepository implements DockerImageRepository {
             images.addAll(buildImages(original));
         }
         return images;
+    }
+
+    @Override
+    public DockerImage findByName(String imageName) throws DockerException {
+        InspectImageResponse response = dockerClient.inspectImageCmd(imageName).exec();
+        return new DockerImage(response.getId(), imageName);
     }
 
     private boolean isValid(String tag) {

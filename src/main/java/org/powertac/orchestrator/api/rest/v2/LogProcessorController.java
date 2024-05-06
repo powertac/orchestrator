@@ -60,7 +60,7 @@ public class LogProcessorController {
     @GetMapping("/available")
     public ResponseEntity<Set<LogProcessor>> getAvailableProcessors() {
         try {
-            return ResponseEntity.ok(processorProvider.getAvailableProcessors());
+            return ResponseEntity.ok(processorProvider.getAvailableProcessors().stream().filter(p -> p.getFileNamePattern() != null).collect(Collectors.toSet()));
         } catch (Exception e) {
             logger.error("unable to serve available log processors");
             return ResponseEntity.internalServerError().build();
@@ -192,7 +192,10 @@ public class LogProcessorController {
         Set<LogProcessorArtifactDTO> artifacts = new HashSet<>();
         String hostGameArtifactsDir = paths.host().game(game).artifacts().toString();
         String localGameArtifactsDir = paths.host().game(game).artifacts().toString();
-        for (LogProcessor processor : processorProvider.getAvailableProcessors()) {
+        Set<LogProcessor> fileBasedProcessors = processorProvider.getAvailableProcessors().stream()
+            .filter(p -> p.getFileNamePattern() != null)
+            .collect(Collectors.toSet());
+        for (LogProcessor processor : fileBasedProcessors) {
             String filename = String.format(processor.getFileNamePattern(), game.getId());
             // we use the local path for existence check
             if (Files.exists(Paths.get(localGameArtifactsDir, filename))) {

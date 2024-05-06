@@ -83,12 +83,17 @@
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
         </dependency>
-        <dependency>
+        <dependency><!-- TODO - replace with MariaDB specific lib -->
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.2.0</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <!-- Testing -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -101,7 +106,7 @@
             <version>6.1.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- COMPATIBILITY -->
+        <!-- Compatibility -->
         <dependency><!-- Jackson issue; may be removed in future releases -->
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>

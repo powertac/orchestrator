@@ -9,5 +9,6 @@ public interface DockerImageRepository {
     void pull(String tag) throws DockerException;
     boolean exists(String tag) throws DockerException;
     Collection<DockerImage> findAll();
+    DockerImage findByName(String imageName) throws DockerException;
 
 }

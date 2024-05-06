@@ -26,6 +26,19 @@ public class OrchestratorPathsImpl implements PathProvider.OrchestratorPaths {
     }
 
     @Override
+    public Path config() {
+        return Paths.get(basePath, "config");
+    }
+
+    @Override
+    public Path processorsFile(String logProcessorImageId) {
+        String imageId = logProcessorImageId.replace("sha256:", "");
+        return Paths.get(
+            config().toString(),
+            String.format("%s.processors.json", imageId));
+    }
+
+    @Override
     public GamePaths game(Game game) {
         return new OrchestratorGamePathProvider(this, game);
     }

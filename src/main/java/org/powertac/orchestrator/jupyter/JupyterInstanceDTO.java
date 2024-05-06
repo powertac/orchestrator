@@ -1,3 +1,3 @@
 package org.powertac.orchestrator.jupyter;
 
-public record JupyterInstanceDTO(String scopeId, Integer port, String token, Boolean isRunning) {}
+public record JupyterInstanceDTO(String scopeId, Integer port, String token, Boolean isRunning, Boolean isReachable) {}

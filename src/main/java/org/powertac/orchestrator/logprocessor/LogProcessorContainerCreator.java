@@ -62,8 +62,9 @@ public class LogProcessorContainerCreator implements ContainerCreator<LogProcess
 
     private List<String> getCommand(LogProcessorTask task) {
         List<String> command = new ArrayList<>();
+        command.add("run");
         command.add("game.state");
-        command.add("--game");
+        command.add("--game-id");
         command.add(task.getGame().getId());
         command.add("--out");
         command.add(containerResultsPath);

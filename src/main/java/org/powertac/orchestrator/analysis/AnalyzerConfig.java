@@ -23,11 +23,12 @@ public class AnalyzerConfig implements ApplicationContextAware {
     public AnalyzerProvider analyzerProvider() {
         ConfigurableAnalyzerProvider analyzerProvider = new ConfigurableAnalyzerProvider();
         LogProcessorProvider processorProvider = context.getBean(LogProcessorProvider.class);
-        analyzerProvider.addAnalyzer(Analyzer.builder()
+        /*analyzerProvider.addAnalyzer(Analyzer.builder()
                 .name("wholesale-prices-boxplot")
                 .requirements(Set.of(processorProvider.get("broker-market-prices")))
                 .scope(AnalyzerScope.GROUP)
                 .build());
+         */
         return analyzerProvider;
     }
 

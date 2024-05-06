@@ -18,11 +18,18 @@ import org.powertac.orchestrator.util.exception.ConflictException;
 import org.powertac.orchestrator.util.exception.CreationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/jupyter")
@@ -58,7 +65,7 @@ public class JupyterRestController {
                 ? ResponseEntity.ok(instance.map(this::toDto).get())
                 : ResponseEntity.ok(null);
         } catch (Exception e) {
-            logger.error("cannot retrieve instance with id=" + scopeId, e);
+            logger.error("cannot retrieve instance with id={}", scopeId, e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -68,14 +75,14 @@ public class JupyterRestController {
         try {
             Game game = games.findById(gameId);
             if (game == null) {
-                logger.error("unable to find game with id=" + gameId);
+                logger.error("unable to find game with id={}", gameId);
                 return ResponseEntity.badRequest().build();
             }
             writeScopeFileIfNotExists(game);
             JupyterInstance instance = findOrRunInstance(game);
             return ResponseEntity.ok(toDto(instance));
         } catch (Exception e) {
-            logger.error("unable to start jupyter server for game with id=" + gameId, e);
+            logger.error("unable to start jupyter server for game with id={}", gameId, e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -173,7 +180,8 @@ public class JupyterRestController {
             instance.getScope().getId(),
             instance.getPort(),
             instance.getToken(),
-            instance.isRunning());
+            instance.isRunning(),
+            instance.isReachable());
     }
 
 }
