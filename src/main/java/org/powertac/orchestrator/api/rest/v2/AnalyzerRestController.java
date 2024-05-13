@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v2/analysis")
+@Deprecated
 public class AnalyzerRestController {
 
     private final AnalyzerProvider analyzerProvider;

@@ -4,6 +4,7 @@ import org.powertac.orchestrator.baseline.Baseline;
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.game.Game;
 import org.powertac.orchestrator.game.GameRun;
+import org.powertac.orchestrator.logprocessor.LogProcessor;
 import org.powertac.orchestrator.treatment.Treatment;
 import org.powertac.orchestrator.util.Versioned;
 
@@ -39,6 +40,7 @@ public interface PathProvider extends Versioned {
             Path seed();
             Path archive();
             Path artifacts();
+            Path logProcessorArtifact(LogProcessor processor);
             Path scope();
             BrokerPaths broker(Broker broker);
 

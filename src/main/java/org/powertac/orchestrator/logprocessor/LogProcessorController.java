@@ -1,4 +1,4 @@
-package org.powertac.orchestrator.api.rest.v2;
+package org.powertac.orchestrator.logprocessor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,12 +9,11 @@ import org.powertac.orchestrator.exec.TaskDTOMapper;
 import org.powertac.orchestrator.exec.TaskScheduler;
 import org.powertac.orchestrator.game.Game;
 import org.powertac.orchestrator.game.GameRepository;
-import org.powertac.orchestrator.logprocessor.*;
 import org.powertac.orchestrator.paths.PathProvider;
 import org.powertac.orchestrator.treatment.Treatment;
 import org.powertac.orchestrator.treatment.TreatmentRepository;
-import org.powertac.orchestrator.user.exception.UserNotFoundException;
 import org.powertac.orchestrator.user.UserProvider;
+import org.powertac.orchestrator.user.exception.UserNotFoundException;
 import org.powertac.orchestrator.util.ID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,13 +37,14 @@ public class LogProcessorController {
     private final LogProcessorTaskRepository taskRepository;
     private final TaskDTOMapper dtoMapper;
     private final PathProvider paths;
+    private final LogProcessorArtifactRepository artifactRepository;
     private final Logger logger;
 
     public LogProcessorController(UserProvider userProvider, LogProcessorProvider processorProvider,
                                   GameRepository gameRepository, BaselineRepository baselineRepository,
                                   TreatmentRepository treatmentRepository, TaskScheduler taskScheduler,
                                   LogProcessorTaskRepository taskRepository, TaskDTOMapper dtoMapper,
-                                  PathProvider paths) {
+                                  PathProvider paths, LogProcessorArtifactRepository artifactRepository) {
         this.userProvider = userProvider;
         this.processorProvider = processorProvider;
         this.gameRepository = gameRepository;
@@ -54,6 +54,7 @@ public class LogProcessorController {
         this.taskRepository = taskRepository;
         this.dtoMapper = dtoMapper;
         this.paths = paths;
+        this.artifactRepository = artifactRepository;
         logger = LogManager.getLogger(LogProcessorController.class);
     }
 
@@ -133,11 +134,13 @@ public class LogProcessorController {
     }
 
     @GetMapping("/game/{id}/artifacts")
-    public ResponseEntity<Set<LogProcessorArtifactDTO>> getLogProcessorArtifacts(@PathVariable String id) {
+    public ResponseEntity<Set<LogProcessorArtifactDTO>> getGameArtifacts(@PathVariable String id) {
         try {
             Game game = gameRepository.findById(id);
             if (null != game) {
-                return ResponseEntity.ok(getGameArtifacts(game));
+                Collection<LogProcessorArtifact> artifacts = artifactRepository.findAllByGame(game);
+                Set<LogProcessorArtifactDTO> dtos = artifacts.stream().map(this::toDto).collect(Collectors.toSet());
+                return ResponseEntity.ok(dtos);
             } else {
                 logger.error("unable to find game with id=" + id);
                 return ResponseEntity.notFound().build();
@@ -188,6 +191,7 @@ public class LogProcessorController {
         }
     }
 
+    @Deprecated
     private Set<LogProcessorArtifactDTO> getGameArtifacts(Game game) {
         Set<LogProcessorArtifactDTO> artifacts = new HashSet<>();
         String hostGameArtifactsDir = paths.host().game(game).artifacts().toString();
@@ -216,6 +220,18 @@ public class LogProcessorController {
             .createdAt(Instant.now())
             .game(game)
             .processorIds(processorNames)
+            .build();
+    }
+
+    private LogProcessorArtifactDTO toDto(LogProcessorArtifact artifact) {
+        Collection<PersistentTaskDTO<Object>> tasks = artifact.tasks().stream()
+            .map(dtoMapper::toDTO)
+            .toList();
+        return LogProcessorArtifactDTO.builder()
+            .processorName(artifact.processor().getName())
+            .filePath(artifact.filePath() != null ? artifact.filePath().toAbsolutePath().toString() : null)
+            .exists(artifact.exists())
+            .tasks(tasks)
             .build();
     }
 

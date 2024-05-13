@@ -1,8 +1,12 @@
 package org.powertac.orchestrator.logprocessor;
 
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.powertac.orchestrator.exec.PersistentTaskDTO;
+
+import java.util.Collection;
 
 @Getter
 @Builder
@@ -10,6 +14,9 @@ import lombok.Getter;
 public class LogProcessorArtifactDTO {
 
     private String processorName;
-    private String filePath;
+    @Nullable private String filePath;
+    private boolean exists;
+    private Collection<PersistentTaskDTO<Object>> tasks;
+
 
 }

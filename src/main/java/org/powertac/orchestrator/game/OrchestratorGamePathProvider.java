@@ -1,6 +1,7 @@
 package org.powertac.orchestrator.game;
 
 import org.powertac.orchestrator.broker.Broker;
+import org.powertac.orchestrator.logprocessor.LogProcessor;
 import org.powertac.orchestrator.paths.PathProvider;
 
 import java.nio.file.Path;
@@ -62,6 +63,13 @@ public class OrchestratorGamePathProvider implements PathProvider.OrchestratorPa
             dir().toString(),
             "artifacts"
         );
+    }
+
+    @Override
+    public Path logProcessorArtifact(LogProcessor processor) {
+        return Paths.get(
+            artifacts().toString(),
+            String.format(processor.getFileNamePattern(), game.getId()));
     }
 
     @Override
