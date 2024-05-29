@@ -15,14 +15,16 @@ import java.time.temporal.ChronoUnit;
 public class JupyterInstance {
 
     private final Scope scope;
+    private final String host;
     private final Integer port;
     private final String token;
 
     @Setter
     private DockerContainer container;
 
-    public JupyterInstance(Scope scope, Integer port, String token) {
+    public JupyterInstance(Scope scope, String host, Integer port, String token) {
         this.scope = scope;
+        this.host = host;
         this.port = port;
         this.token = token;
     }
@@ -35,11 +37,13 @@ public class JupyterInstance {
         return container != null && container.isRunning();
     }
 
+    public String getUri() {
+        return String.format("http://%s:%s/lab", getHost(), getPort());
+    }
+
     public boolean isReachable() {
         try {
-            // TODO - replace with service reference for container deployment
-            String uri = "http://localhost:" + getPort() + "/lab";
-            ResponseEntity<?> response = WebClient.create().get().uri(uri)
+            ResponseEntity<?> response = WebClient.create().get().uri(getUri())
                 .retrieve().toBodilessEntity()
                 .block(Duration.of(10, ChronoUnit.SECONDS));
             return response != null && !response.getStatusCode().isError();

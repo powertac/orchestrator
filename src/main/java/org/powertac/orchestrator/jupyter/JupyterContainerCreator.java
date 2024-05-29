@@ -18,6 +18,9 @@ public class JupyterContainerCreator implements ContainerCreator<JupyterInstance
     @Value("${services.analysis.default-image}")
     private String defaultImageTag;
 
+    @Value("${application.host.ip}")
+    private String hostIp;
+
     private final DockerClient docker;
     private final UserProvider userProvider;
     private final JupyterBindFactory bindFactory;
@@ -56,7 +59,7 @@ public class JupyterContainerCreator implements ContainerCreator<JupyterInstance
             .withBinds(getBinds(instance))
             .withPortBindings(
                 new PortBinding(
-                    new Ports.Binding("127.0.0.1", instance.getPort().toString()),
+                    new Ports.Binding(hostIp, instance.getPort().toString()),
                     new ExposedPort(8888)));
     }
 

@@ -8,12 +8,16 @@ import org.powertac.orchestrator.docker.exception.ContainerConflictException;
 import org.powertac.orchestrator.util.PortPool;
 import org.powertac.orchestrator.util.exception.ConflictException;
 import org.powertac.orchestrator.util.exception.CreationException;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class JupyterInstanceRepositoryImpl implements JupyterInstanceRepository {
+
+    @Value("${application.host.ip}")
+    private String hostIp;
 
     private final JupyterTokenFactory tokens;
     private final ContainerCreator<JupyterInstance> containerCreator;
@@ -40,7 +44,7 @@ public class JupyterInstanceRepositoryImpl implements JupyterInstanceRepository 
                 Integer port = portPool.claimNext();
                 try {
                     String token = tokens.createToken(scope.getId(), port);
-                    JupyterInstance instance = new JupyterInstance(scope, port, token);
+                    JupyterInstance instance = new JupyterInstance(scope, hostIp, port, token);
                     instances.put(instance.getId(), instance);
                     return instance;
                 } catch (Exception e) {
