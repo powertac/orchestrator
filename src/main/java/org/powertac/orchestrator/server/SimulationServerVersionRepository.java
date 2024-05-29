@@ -10,5 +10,6 @@ public interface SimulationServerVersionRepository extends CrudRepository<Simula
     @NonNull Collection<SimulationServerVersion> findAll();
     boolean existsByImageTag(String imageTag);
     boolean existsByName(String name);
+    SimulationServerVersion findByName(String name);
 
 }

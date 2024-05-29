@@ -2,6 +2,8 @@ package org.powertac.orchestrator.game;
 
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.broker.BrokerDTO;
+import org.powertac.orchestrator.server.SimulationServerVersion;
+import org.powertac.orchestrator.server.SimulationServerVersionRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -10,6 +12,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class GameDTOV2Mapper implements GameDTOMapper {
+
+    private final SimulationServerVersionRepository serverVersionRepository;
+
+    public GameDTOV2Mapper(SimulationServerVersionRepository serverVersionRepository) {
+        this.serverVersionRepository = serverVersionRepository;
+    }
 
     @Override
     public GameDTO toDTO(Game game) {
@@ -30,13 +38,14 @@ public class GameDTOV2Mapper implements GameDTOMapper {
     }
 
     private GameConfigDTO parseConfigDTO(Game game) {
+        SimulationServerVersion serverVersion = game.getServerVersion() != null ? game.getServerVersion() : getDefaultServerVersion();
         return GameConfigDTO.builder()
             .brokerIds(game.getBrokerSet().getIds())
             .brokers(game.getBrokers().stream().map(this::brokerToDto).collect(Collectors.toSet()))
             .parameters(game.getServerParameters())
             .weather(game.getWeatherConfiguration())
             .seed(null) // FIXME : this should contain reference to game, if applicable
-            .serverVersion(game.getServerVersion())
+            .serverVersion(serverVersion)
             .build();
     }
 
@@ -52,6 +61,10 @@ public class GameDTOV2Mapper implements GameDTOMapper {
             .phase(run.getPhase().toString())
             .failed(run.hasFailed())
             .build();
+    }
+
+    private SimulationServerVersion getDefaultServerVersion() {
+        return serverVersionRepository.findByName("default");
     }
 
 }
