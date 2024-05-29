@@ -36,6 +36,7 @@ public class GameDTOV2Mapper implements GameDTOMapper {
             .parameters(game.getServerParameters())
             .weather(game.getWeatherConfiguration())
             .seed(null) // FIXME : this should contain reference to game, if applicable
+            .serverVersion(game.getServerVersion())
             .build();
     }
 

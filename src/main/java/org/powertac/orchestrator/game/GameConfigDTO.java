@@ -3,6 +3,7 @@ package org.powertac.orchestrator.game;
 import lombok.Builder;
 import lombok.Getter;
 import org.powertac.orchestrator.broker.BrokerDTO;
+import org.powertac.orchestrator.server.SimulationServerVersion;
 import org.powertac.orchestrator.weather.WeatherConfiguration;
 
 import java.util.Map;
@@ -25,5 +26,8 @@ public class GameConfigDTO {
 
     @Getter
     private String seed;
+
+    @Getter
+    private SimulationServerVersion serverVersion;
 
 }

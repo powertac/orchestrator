@@ -44,6 +44,7 @@ public class GameRestController {
         return ResponseEntity.ok().body(top);
     }
 
+    @Deprecated
     @PostMapping("/")
     public ResponseEntity<?> createGame(@RequestBody GameSpec spec) {
         try {

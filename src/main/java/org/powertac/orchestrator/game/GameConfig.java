@@ -5,6 +5,7 @@ import lombok.*;
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.broker.BrokerSet;
 import org.powertac.orchestrator.file.File;
+import org.powertac.orchestrator.server.SimulationServerVersion;
 import org.powertac.orchestrator.weather.WeatherConfiguration;
 
 import jakarta.persistence.*;
@@ -41,6 +42,11 @@ public class GameConfig {
     @Setter
     @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private WeatherConfiguration weather;
+
+    @Getter
+    @Setter
+    @ManyToOne(fetch = FetchType.EAGER)
+    private SimulationServerVersion serverVersion;
 
     @Getter
     @Builder.Default

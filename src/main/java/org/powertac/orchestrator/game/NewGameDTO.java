@@ -20,4 +20,7 @@ public class NewGameDTO {
     @Getter
     private WeatherConfiguration weather;
 
+    @Getter
+    private String serverVersionId;
+
 }

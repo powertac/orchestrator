@@ -8,6 +8,8 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.InternetProtocol;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.docker.DockerContainer;
 import org.powertac.orchestrator.docker.DockerNetwork;
@@ -37,6 +39,7 @@ public class SimulationContainerCreatorImpl implements SimulationContainerCreato
     private final ServerContainerCommandCreator commandCreator;
     private final ServerContainerBindFactory bindFactory;
     private final PathProvider paths;
+    private final Logger logger;
 
     @Autowired
     public SimulationContainerCreatorImpl(DockerClient docker, ServerContainerCommandCreator commandCreator, ServerContainerBindFactory bindFactory, PathProvider paths) {
@@ -44,11 +47,12 @@ public class SimulationContainerCreatorImpl implements SimulationContainerCreato
         this.commandCreator = commandCreator;
         this.bindFactory = bindFactory;
         this.paths = paths;
+        logger = LogManager.getLogger(SimulationContainerCreatorImpl.class);
     }
 
     @Override
     public DockerContainer create(GameRun run, DockerNetwork network) throws DockerException {
-        CreateContainerCmd create = docker.createContainerCmd(defaultImageTag);
+        CreateContainerCmd create = docker.createContainerCmd(getServerImageTag(run.getGame()));
         String name = getSimulationContainerName(run.getGame());
         create.withName(name)
             .withCmd(getCommand(run.getGame()))
@@ -62,6 +66,16 @@ public class SimulationContainerCreatorImpl implements SimulationContainerCreato
     @Override
     public String getSimulationContainerName(Game game) {
         return String.format("sim.%s", game.getId());
+    }
+
+    private String getServerImageTag(Game game) {
+        SimulationServerVersion serverVersion = game.getServerVersion();
+        if (null != serverVersion) {
+            return serverVersion.getImageTag();
+        } else {
+            logger.warn("no server version set for game with name={}; falling back to default version", game.getName());
+            return defaultImageTag;
+        }
     }
 
     private List<String> getCommand(Game game) {

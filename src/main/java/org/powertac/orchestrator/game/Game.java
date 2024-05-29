@@ -11,6 +11,7 @@ import org.powertac.orchestrator.baseline.Baseline;
 import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.broker.BrokerSet;
 import org.powertac.orchestrator.file.File;
+import org.powertac.orchestrator.server.SimulationServerVersion;
 import org.powertac.orchestrator.treatment.Treatment;
 import org.powertac.orchestrator.util.InstantToNumberSerializer;
 import org.powertac.orchestrator.weather.WeatherConfiguration;
@@ -98,6 +99,11 @@ public class Game implements Scope {
 
     @Getter
     @Setter
+    @ManyToOne(fetch = FetchType.EAGER)
+    private SimulationServerVersion serverVersion;
+
+    @Getter
+    @Setter
     @ManyToOne
     private Baseline baseline; // TODO : make getter return Optional
 
@@ -149,6 +155,7 @@ public class Game implements Scope {
             null,
             null,
             null,
+            null,
             QueueStatus.PAUSED,
             ExecutionStatus.NONE);
     }
@@ -168,6 +175,7 @@ public class Game implements Scope {
             null,
             null,
             null,
+            null,
             QueueStatus.PAUSED,
             ExecutionStatus.NONE);
     }
@@ -183,6 +191,7 @@ public class Game implements Scope {
             createdAt,
             new ArrayList<>(),
             cancelled,
+            null,
             null,
             null,
             null,

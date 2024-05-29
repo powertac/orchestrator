@@ -8,6 +8,7 @@ import org.powertac.orchestrator.file.FileTreeBuilder;
 import org.powertac.orchestrator.file.GameArchiveBuilder;
 import org.powertac.orchestrator.game.*;
 import org.powertac.orchestrator.paths.PathProvider;
+import org.powertac.orchestrator.server.SimulationServerVersionNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,7 +91,8 @@ public class GameRestControllerV2 {
             createGameFileScaffold(game); // FIXME : move to GameRunner (JIT-approach)
             games.save(game);
             return ResponseEntity.ok().build();
-        } catch (IOException | GameValidationException | BrokerNotFoundException e) {
+        } catch (IOException | GameValidationException | BrokerNotFoundException |
+                 SimulationServerVersionNotFoundException e) {
             logger.error("unable to create new game", e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }

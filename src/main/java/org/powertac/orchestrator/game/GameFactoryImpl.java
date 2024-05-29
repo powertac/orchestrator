@@ -7,6 +7,9 @@ import org.powertac.orchestrator.broker.BrokerRepository;
 import org.powertac.orchestrator.broker.BrokerSet;
 import org.powertac.orchestrator.file.File;
 import org.powertac.orchestrator.file.FileRole;
+import org.powertac.orchestrator.server.SimulationServerVersion;
+import org.powertac.orchestrator.server.SimulationServerVersionNotFoundException;
+import org.powertac.orchestrator.server.SimulationServerVersionRepository;
 import org.powertac.orchestrator.util.ID;
 import org.powertac.orchestrator.weather.WeatherConfiguration;
 import org.springframework.stereotype.Component;
@@ -19,26 +22,35 @@ public class GameFactoryImpl implements GameFactory {
 
     private final GameRepository gameRepository;
     private final BrokerRepository brokerRepository;
+    private final SimulationServerVersionRepository serverVersionRepository;
 
-    public GameFactoryImpl(GameRepository gameRepository, BrokerRepository brokerRepository) {
+    public GameFactoryImpl(GameRepository gameRepository, BrokerRepository brokerRepository,
+                           SimulationServerVersionRepository serverVersionRepository) {
         this.gameRepository = gameRepository;
         this.brokerRepository = brokerRepository;
+        this.serverVersionRepository = serverVersionRepository;
     }
 
     @Override
-    public Game createFromDTO(NewGameDTO newGameData) throws BrokerNotFoundException {
+    public Game createFromDTO(NewGameDTO newGameData) throws BrokerNotFoundException, SimulationServerVersionNotFoundException {
         Set<Broker> brokers = brokerIdsToSet(newGameData.getBrokerIds());
+        Optional<SimulationServerVersion> serverVersion = serverVersionRepository.findById(newGameData.getServerVersionId());
+        if (serverVersion.isEmpty()) {
+            throw new SimulationServerVersionNotFoundException("no server version found for id=" + newGameData.getServerVersionId());
+        }
         return Game.builder()
             .id(ID.gen())
             .name(newGameData.getName())
             .brokerSet(createBrokerSet(brokers))
             .weatherConfiguration(newGameData.getWeather())
             .serverParameters(newGameData.getParameters())
+            .serverVersion(serverVersion.get())
             .createdAt(Instant.now())
             .build();
     }
 
     @Override
+    @Deprecated
     public Game createFromSpec(GameSpec spec) {
         return Game.builder()
             .id(ID.gen())
@@ -72,6 +84,7 @@ public class GameFactoryImpl implements GameFactory {
             .brokerSet(config.getBrokers())
             .serverParameters(config.getParameters())
             .weatherConfiguration(config.getWeather())
+            .serverVersion(config.getServerVersion())
             .createdAt(Instant.now())
             .build();
     }
