@@ -50,8 +50,11 @@ public class RegistrationTokenRestController {
             // FIXME : ID is not automatically updated on this object
             return ResponseEntity.ok(token);
         } catch (UserNotFoundException e) {
-            logger.error(e);
+            logger.error("no valid issuer found", e);
             return ResponseEntity.status(401).build();
+        } catch (Exception e) {
+            logger.error("unable to create new registration token", e);
+            return ResponseEntity.badRequest().build();
         }
     }
 

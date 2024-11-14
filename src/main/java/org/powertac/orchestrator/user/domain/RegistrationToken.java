@@ -2,13 +2,10 @@ package org.powertac.orchestrator.user.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.*;
 import lombok.*;
 import org.powertac.orchestrator.serialization.InstantToMillisSerializer;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import org.powertac.orchestrator.user.UserIdSerializer;
 
 import java.time.Instant;
@@ -34,7 +31,7 @@ public class RegistrationToken {
     private Instant expirationDate;
 
     @Getter
-    @OneToOne
+    @ManyToOne
     @JsonSerialize(using = UserIdSerializer.class)
     private User issuedBy;
 
