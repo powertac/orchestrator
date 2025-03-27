@@ -55,6 +55,7 @@ public interface PathProvider extends Versioned {
             Path serverLogs();
             Path state();
             Path trace();
+            Path bootstrapTrace();
             BrokerPaths broker(Broker broker);
 
             interface BrokerPaths {

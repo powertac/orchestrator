@@ -3,6 +3,7 @@ package org.powertac.orchestrator.docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.async.ResultCallbackTemplate;
+import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -16,11 +17,15 @@ import org.powertac.orchestrator.docker.exception.KillContainerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 @Service
 public class DockerContainerControllerImpl implements DockerContainerController {
@@ -66,14 +71,22 @@ public class DockerContainerControllerImpl implements DockerContainerController 
 
     @Override
     public DockerContainerExitState run(DockerContainer container) throws ContainerException {
+        return run(container, (exitState) -> {});
+    }
+
+    @Override
+    public DockerContainerExitState run(DockerContainer container, Consumer<DockerContainerExitState> onComplete) throws ContainerException {
         try {
             Future<DockerContainerExitState> exitFuture = runPool.submit(createSynchronousRun(container));
-            return exitFuture.get();
+            DockerContainerExitState exitState = exitFuture.get();
+            // todo - move resource handling up!
+            onComplete.accept(exitState);
+            return exitState;
         } catch (Exception e) {
-            // TODO : check if container should be kept or any run data should be persisted
             kill(container);
             throw new ContainerException("container run failed", e);
         } finally {
+            // todo - move resource handling up!
             remove(container);
         }
     }
@@ -123,6 +136,23 @@ public class DockerContainerControllerImpl implements DockerContainerController 
             return true;
         } catch (NotFoundException e) {
             return false;
+        }
+    }
+
+    @Override
+    public void copyResource(String containerId, String containerPath, String hostPath) throws IOException {
+        CopyArchiveFromContainerCmd copyCmd = docker.copyArchiveFromContainerCmd(containerId, containerPath);
+        try (
+            InputStream in = copyCmd.exec();
+            InputStreamReader reader = new InputStreamReader(in);
+            BufferedReader buffReader = new BufferedReader(reader);
+            BufferedWriter out = Files.newBufferedWriter(Paths.get(hostPath));
+        ) {
+            String line;
+            while ((line = buffReader.readLine()) != null) {
+                out.write(line);
+                out.newLine();
+            }
         }
     }
 

@@ -9,6 +9,7 @@ import org.powertac.orchestrator.broker.Broker;
 import org.powertac.orchestrator.broker.BrokerContainerCreator;
 import org.powertac.orchestrator.docker.*;
 import org.powertac.orchestrator.docker.exception.ContainerException;
+import org.powertac.orchestrator.paths.PathProvider;
 import org.powertac.orchestrator.server.BootstrapContainerCreator;
 import org.powertac.orchestrator.server.SimulationContainerCreator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +34,10 @@ public class ContainerGameRunner implements GameRunner {
     @Value("${services.weatherserver.default-container-name}")
     private String weatherServerContainerName;
 
+    @Value("${logging.simulationserver.bootstrap.trace}")
+    private String saveBootstrapTracePolicy;
+
+
     private final GameRunRepository runs;
     private final GameFileManager gameFileManager;
     private final BootstrapContainerCreator bootstrapContainerCreator;
@@ -43,6 +49,7 @@ public class ContainerGameRunner implements GameRunner {
     private final GameValidator gameValidator;
     private final GamePostConditionValidator postConditionValidator;
     private final DockerClient client;
+    private final PathProvider paths;
 
     private final Map<Game, GameRun> activeRuns;
     private final Logger logger;
@@ -54,7 +61,8 @@ public class ContainerGameRunner implements GameRunner {
                                BrokerContainerCreator brokerContainerCreator,
                                DockerContainerController controller, DockerNetworkRepository networks,
                                GameRunLifecycleManager lifecycle, GameValidator gameValidator,
-                               GamePostConditionValidator postConditionValidator, DockerClient client) {
+                               GamePostConditionValidator postConditionValidator, DockerClient client,
+                               PathProvider paths) {
         this.runs = runs;
         this.gameFileManager = gameFileManager;
         this.bootstrapContainerCreator = bootstrapContainerCreator;
@@ -66,6 +74,7 @@ public class ContainerGameRunner implements GameRunner {
         this.gameValidator = gameValidator;
         this.postConditionValidator = postConditionValidator;
         this.client = client;
+        this.paths = paths;
         this.activeRuns = new ConcurrentHashMap<>();
         logger = LogManager.getLogger(ContainerGameRunner.class);
     }
@@ -126,7 +135,19 @@ public class ContainerGameRunner implements GameRunner {
                 gameFileManager.createBootstrap(run.getGame());
                 DockerContainer bootstrapContainer = bootstrapContainerCreator.create(run.getGame(), run.getNetwork().getId());
                 lifecycle.bootstrap(run, bootstrapContainer);
-                DockerContainerExitState exitState = controller.run(run.getBootstrapContainer());
+                DockerContainerExitState exitState = controller.run(run.getBootstrapContainer(), (es) -> {
+                    if (shouldSaveBootstrap(es)) {
+                        Path bootstrapTrace = paths.host().run(run).bootstrapTrace();
+                        try {
+                            controller.copyResource(run.getBootstrapContainer().getId(),
+                                "/powertac/server/log/powertac-boot-0.trace",
+                                bootstrapTrace.toString()
+                            );
+                        } catch (IOException e) {
+                            logger.error("unable to store bootstrap trace to " + bootstrapTrace, e);
+                        }
+                    }
+                });
                 if (exitState.isErrorState()) {
                     gameFileManager.removeBootstrap(run.getGame());
                     throw new GameRunException("failed to create bootstrap for game with id=" + run.getGame().getId());
@@ -261,6 +282,15 @@ public class ContainerGameRunner implements GameRunner {
             }
             networks.removeNetworkIfExists(networkName);
         }
+    }
+
+    private boolean shouldSaveBootstrap(DockerContainerExitState exitState) {
+        String policy = this.saveBootstrapTracePolicy.toLowerCase().trim();
+        if (policy.isEmpty()) {
+            policy = "never";
+        }
+        return (exitState.isErrorState() && policy.equals("on-error"))
+            || policy.equals("always");
     }
 
 }

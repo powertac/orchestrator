@@ -45,6 +45,14 @@ public class OrchestratorGameRunPathProvider implements PathProvider.Orchestrato
     }
 
     @Override
+    public Path bootstrapTrace() {
+        return Paths.get(
+            dir().toString(),
+            String.format("%s.bootstrap.trace", run.getId())
+        );
+    }
+
+    @Override
     public BrokerPaths broker(Broker broker) {
         return () -> Paths.get(
                 dir().toString(),
