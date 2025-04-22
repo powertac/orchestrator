@@ -34,6 +34,7 @@ public interface PathProvider extends Versioned {
 
         interface GamePaths {
             Path bootstrap();
+            Path weather ();
             Path dir();
             Path runs();
             Path properties();
@@ -88,6 +89,7 @@ public interface PathProvider extends Versioned {
 
             interface GamePaths {
                 Path bootstrap();
+                Path weather ();
                 Path properties();
                 Path seed();
             }

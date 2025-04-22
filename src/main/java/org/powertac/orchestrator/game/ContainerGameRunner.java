@@ -31,8 +31,6 @@ public class ContainerGameRunner implements GameRunner {
     @Value("${application.deployment.context}")
     private DeploymentContext deploymentContext;
 
-    @Value("${services.weatherserver.default-container-name}")
-    private String weatherServerContainerName;
 
     @Value("${logging.simulationserver.bootstrap.trace}")
     private String saveBootstrapTracePolicy;
@@ -119,9 +117,6 @@ public class ContainerGameRunner implements GameRunner {
             gameValidator.validate(run.getGame());
             DockerNetwork network = networks.createNetwork(getNetworkName(run.getGame()));
             run.setNetwork(network);
-            if (deploymentContext.equals(DeploymentContext.CONTAINER)) {
-                connectWeatherServer(network.getId());
-            }
             gameFileManager.createRunScaffold(run);
         } catch (IOException e) {
             throw new GameValidationException("could not create game file", e);
@@ -185,27 +180,13 @@ public class ContainerGameRunner implements GameRunner {
         } finally {
             DockerNetwork network = run.getNetwork();
             if (null != network) {
-                if (deploymentContext.equals(DeploymentContext.CONTAINER)) {
-                    disconnectWeatherServer(network.getId());
-                }
                 networks.removeNetwork(network);
             }
         }
     }
 
-    private void connectWeatherServer(String networkNameOrId) throws DockerException {
-        client.connectToNetworkCmd()
-            .withContainerId(weatherServerContainerName)
-            .withNetworkId(networkNameOrId)
-            .exec();
-    }
 
-    private void disconnectWeatherServer(String networkNameOrId) throws DockerException {
-        client.disconnectFromNetworkCmd()
-            .withContainerId(weatherServerContainerName)
-            .withNetworkId(networkNameOrId)
-            .exec();
-    }
+
 
     private String getNetworkName(Game game) {
         return String.format("ptac.%s", game.getId());
@@ -277,9 +258,6 @@ public class ContainerGameRunner implements GameRunner {
     private void removeNetworkIfExists(Game game) {
         String networkName = getNetworkName(game);
         if (networks.exists(networkName)) {
-            if (deploymentContext.equals(DeploymentContext.CONTAINER)) {
-                disconnectWeatherServer(networkName);
-            }
             networks.removeNetworkIfExists(networkName);
         }
     }

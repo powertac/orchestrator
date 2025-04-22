@@ -5,11 +5,16 @@ import org.powertac.orchestrator.file.FileRole;
 import org.powertac.orchestrator.file.FileWriter;
 import org.powertac.orchestrator.paths.PathProvider;
 import org.powertac.orchestrator.util.BrokerCompatiblePropertiesWriter;
+import org.powertac.orchestrator.weather.WeatherConfiguration;
+import org.powertac.orchestrator.weather.WeatherFileProvider;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -22,20 +27,48 @@ public class GameFileManagerImpl implements GameFileManager {
     private final PathProvider paths;
     private final FileWriter fileWriter;
     private final GamePropertiesProvider properties;
+    private final WeatherFileProvider weatherFileProvider;
 
-    public GameFileManagerImpl(PathProvider paths, FileWriter fileWriter, GamePropertiesProvider properties) {
+    public GameFileManagerImpl(PathProvider paths, FileWriter fileWriter, GamePropertiesProvider properties,WeatherFileProvider weatherFileProvider) {
         this.paths = paths;
         this.fileWriter = fileWriter;
         this.properties = properties;
+        this.weatherFileProvider = weatherFileProvider;
     }
 
     @Override
     public void createScaffold(Game game) throws IOException { // TODO : too fuzzy -> refactor
         createGameDirectory(game);
         createServerProperties(game);
+        copyWeatherFiles(game);
         for (Broker broker : game.getBrokers()) {
             createBrokerProperties(game, broker);
         }
+    }
+
+    @Override
+    public void copyWeatherFiles (Game game) throws IOException
+    {
+
+        Path weatherDir = paths.host().game(game).weather();
+        fileWriter.createDirectoryIfNotExists(weatherDir);
+        WeatherConfiguration weatherConfig = game.getWeatherConfiguration();
+        if (weatherConfig != null && weatherConfig.getLocation() != null) {
+            String location = weatherConfig.getLocation();
+            Resource weatherResource = weatherFileProvider.getWeatherFileForCity(location);
+
+            if (weatherResource.exists()) {
+                Path targetPath = weatherDir.resolve(location.toLowerCase() + ".xml");
+                try (InputStream inputStream = weatherResource.getInputStream()) {
+                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } else {
+                throw new IOException("Weather file for location " + location + " not found");
+            }
+        } else {
+            throw new IOException("No weather configuration or location specified for game " + game.getId());
+        }
+
     }
 
     @Override
@@ -98,7 +131,7 @@ public class GameFileManagerImpl implements GameFileManager {
         Path propertiesPath = paths.local().game(game).properties();
         BrokerCompatiblePropertiesWriter.write(
             propertiesPath.toString(),
-            properties.getServerProperties(game));
+            properties.getServerProperties(game, paths));
     }
 
     @Override

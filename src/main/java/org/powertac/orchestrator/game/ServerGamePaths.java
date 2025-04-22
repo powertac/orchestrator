@@ -23,6 +23,12 @@ public class ServerGamePaths implements PathProvider.ContainerPaths.ServerPaths.
     }
 
     @Override
+    public Path weather() {
+        return Paths.get(
+            parent.base().toString(), "weather");
+    }
+
+    @Override
     public Path properties() {
         return Paths.get(
             parent.base().toString(),

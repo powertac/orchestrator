@@ -12,6 +12,7 @@ import org.powertac.orchestrator.paths.PathProvider;
 import org.powertac.orchestrator.persistence.SchemaViewSeeder;
 import org.powertac.orchestrator.persistence.SeederException;
 import org.powertac.orchestrator.persistence.SeederManager;
+import org.powertac.orchestrator.weather.LocalWeatherLocationRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -19,6 +20,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
@@ -31,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
+@EnableCaching
 public class Orchestrator implements ApplicationRunner, ApplicationContextAware {
 
     @Value("${services.simulationserver.default-image}")
@@ -61,6 +64,8 @@ public class Orchestrator implements ApplicationRunner, ApplicationContextAware 
         createRequiredDirectories();
         pullRequiredDockerImages();
         seedRequiredDatabaseViews();
+        //cache weather locations
+        context.getBean(LocalWeatherLocationRepository.class).findAllLocations();
         context.getBean(SeederManager.class).runSeeders();
     }
 

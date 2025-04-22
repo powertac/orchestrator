@@ -33,6 +33,13 @@ public class ServerContainerBindFactoryImpl extends AbstractBindFactory implemen
     }
 
     @Override
+        public Bind createWeatherBind(Game game) {
+                return bind(
+                paths.host().game(game).weather(),
+                paths.container().server().game(game).weather());
+        }
+
+    @Override
     public Bind createSeedBind(Game game) {
         return bind(
             paths.host().game(game).seed(),

@@ -23,6 +23,12 @@ public class OrchestratorGamePathProvider implements PathProvider.OrchestratorPa
     }
 
     @Override
+    public Path weather ()
+    {
+        return Paths.get(dir().toString(), "weather");
+    }
+
+    @Override
     public Path dir() {
         return Paths.get(
             parent.games().toString(),
