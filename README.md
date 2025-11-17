@@ -36,7 +36,7 @@ To run the Experiment Scheduler as local services directly on the host machine t
 installed on your system:
 
 - Docker: https://www.docker.com/get-started
-- Java 11: http://openjdk.java.net/
+- Java 21: http://openjdk.java.net/
 - Apache Maven: http://maven.apache.org/
 - NodeJS & NPM: Download (https://nodejs.org/en/download/) or install via package manager (https://nodejs.org/en/download/package-manager/)
 - A MySQL compliant database

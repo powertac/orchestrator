@@ -33,6 +33,12 @@ public class SecurityConfig  {
     @Value("#{'${security.api.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
+    @Value("${security.auth:true}")
+    private boolean auth;
+
+    @Value("${security.filter-origins:true}")
+    private boolean filterOrigins;
+
     @Bean
     public UserDetailsService userDetailsService(UserRepository users) {
         return new PersistentUserDetailsService(users);
@@ -48,6 +54,14 @@ public class SecurityConfig  {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenFilter jwtTokenFilter) throws Exception {
+        if (!auth) {
+            return http
+                    .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                    .build();
+        }
         return http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
@@ -67,7 +81,11 @@ public class SecurityConfig  {
 
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(allowedOrigins);
+        if (!filterOrigins) {
+            configuration.setAllowedOrigins(List.of("*"));  // Allow all origins when auth is disabled
+        } else {
+            configuration.setAllowedOriginPatterns(allowedOrigins);  // Use configured origins when auth is enabled
+        }
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "DELETE"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

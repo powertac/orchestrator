@@ -1,7 +1,7 @@
 package org.powertac.orchestrator.game;
 
 import org.powertac.orchestrator.broker.Broker;
-import org.springframework.beans.factory.annotation.Value;
+import org.powertac.orchestrator.paths.PathProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -12,9 +12,6 @@ import java.util.Properties;
 @Component
 public class DefaultGamePropertiesProvider implements GamePropertiesProvider {
 
-    @Value("${services.weatherserver.url}")
-    private String defaultWeatherServerUrl;
-
     private final DateTimeFormatter baseTimeFormatter;
 
     public DefaultGamePropertiesProvider() {
@@ -22,7 +19,7 @@ public class DefaultGamePropertiesProvider implements GamePropertiesProvider {
     }
 
     @Override
-    public Properties getServerProperties(Game game) {
+    public Properties getServerProperties(Game game, PathProvider paths) {
         Properties properties = getDefaultServerProperties();
         for (Map.Entry<String, String> parameter : game.getServerParameters().entrySet()) {
             properties.setProperty(parameter.getKey(), parameter.getValue());
@@ -31,6 +28,7 @@ public class DefaultGamePropertiesProvider implements GamePropertiesProvider {
             String baseTime = baseTimeFormatter.format(game.getWeatherConfiguration().getStartTime());
             properties.setProperty("common.competition.simulationBaseTime", baseTime);
             properties.setProperty("server.weatherService.weatherLocation", game.getWeatherConfiguration().getLocation());
+            properties.setProperty("server.weatherService.weatherData", paths.container().server().game(game).weather().toString()+"/"+game.getWeatherConfiguration().getLocation()+".xml");
         }
         return properties;
     }
@@ -48,7 +46,6 @@ public class DefaultGamePropertiesProvider implements GamePropertiesProvider {
         defaultProperties.put("server.competitionControlService.brokerPauseAllowed", "true");
         defaultProperties.put("server.competitionControlService.loginTimeout", "60000");
         defaultProperties.put("server.jmsManagementService.jmsBrokerUrl", "tcp://0.0.0.0:61616");
-        defaultProperties.put("server.weatherService.serverUrl", defaultWeatherServerUrl);
         return defaultProperties;
     }
 

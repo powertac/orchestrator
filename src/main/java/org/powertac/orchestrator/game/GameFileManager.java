@@ -12,6 +12,7 @@ public interface GameFileManager {
     void removeAllGameFiles(Game game) throws IOException;
     void createRunScaffold(GameRun run) throws IOException;
     void createSimulationScaffold(GameRun run) throws IOException;
+    void copyWeatherFiles(Game game) throws IOException;
     void createBootstrap(Game game) throws IOException;
     void removeBootstrap(Game game) throws IOException;
     Map<FileRole, String> getFiles(Game game);

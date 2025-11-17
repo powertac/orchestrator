@@ -84,10 +84,10 @@ public class SimulationContainerCreatorImpl implements SimulationContainerCreato
             .collect(Collectors.toSet());
         Path seedFilePath = useSeed(game) ? paths.container().server().game(game).seed() : null;
         return commandCreator.createSimulationCommand(
-            paths.container().server().game(game).properties().toString(),
-            paths.container().server().game(game).bootstrap().toString(),
-            seedFilePath != null ? seedFilePath.toString() : null,
-            brokerNames);
+                paths.container().server().game(game).properties().toString(),
+                paths.container().server().game(game).bootstrap().toString(),
+                seedFilePath != null ? seedFilePath.toString() : null,
+                brokerNames);
     }
 
     private HostConfig getHostConfig(GameRun run, DockerNetwork network) {
@@ -101,6 +101,7 @@ public class SimulationContainerCreatorImpl implements SimulationContainerCreato
         List<Bind> binds = new ArrayList<>();
         binds.add(bindFactory.createSimulationPropertiesBind(run.getGame()));
         binds.add(bindFactory.createBootstrapBind(run.getGame()));
+        binds.add(bindFactory.createWeatherBind(run.getGame()));
         binds.add(bindFactory.createStateLogBind(run));
         binds.add(bindFactory.createTraceLogBind(run));
         if (useSeed(run.getGame())) {

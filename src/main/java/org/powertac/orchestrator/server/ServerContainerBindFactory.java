@@ -8,6 +8,7 @@ public interface ServerContainerBindFactory {
 
     Bind createSimulationPropertiesBind(Game game);
     Bind createBootstrapBind(Game game);
+    Bind createWeatherBind(Game game);
     Bind createSeedBind(Game game);
     Bind createStateLogBind(GameRun run);
     Bind createTraceLogBind(GameRun run);
